@@ -1,13 +1,62 @@
-# NAME
+package MooX::LazierAttributes;
+
+use strict;
+use warnings;
+
+use MooX::ReturnModifiers qw/return_modifiers/;
+
+use Carp qw/croak/;
+
+our $VERSION = '0.01';
+
+sub import {
+    my $target = caller;
+    my %modifiers = return_modifiers($target);
+
+    my $attributes = sub {
+        my %attr = @_;
+        while ( my ($name, $spec) = each %attr) {
+            $modifiers{has}->($name, construct_attribute($spec));
+        }
+    };
+
+    { no strict 'refs'; *{"${target}::attributes"} = $attributes; }
+
+    return 1;
+}
+
+sub construct_attribute {
+    my $spec = shift;
+    my %attr = ();
+    $attr{is} = $spec->[0];
+    $attr{default} = sub { $spec->[1] };
+    map { $attr{$_} = $spec->[3]->{$_} } keys %{ $spec->[3] };
+    return %attr;
+}
+
+1;
+
+__END__
+
+
+=head1 NAME
 
 MooX::LazierAttributes - Lazier Attributes, well It lets me type 'has', 'is', 'default' less.
 
-# VERSION
+=head1 VERSION
 
 Version 0.01
 
-# SYNOPSIS
+=cut
 
+our $VERSION = '0.01';
+
+
+=head1 SYNOPSIS
+
+    package Hello::World;
+    
+    use Moo;
     use MooX::LazierAttributes;
 
     attributes (
@@ -16,21 +65,32 @@ Version 0.01
         three => ['rw', $obj { clearer => 1 }]
     );
 
-# EXPORT
+    .....
 
-## attributes
+    my $hello = Hello::World->new({ 
+        one => 1,
+        two => { three => 'four' },   
+    });
 
-# AUTHOR
+    $hello->one;    # 1
+    $hello->two;    # { three => 'four' }
+    $hello->three;  # $obj
 
-Robert Acock, `<thisusedtobeanemail at gmail.com>`
+=head1 EXPORT
 
-# BUGS
+=head2 attributes
 
-Please report any bugs or feature requests to `bug-moox-lazierattributes at rt.cpan.org`, or through
-the web interface at [http://rt.cpan.org/NoAuth/ReportBug.html?Queue=MooX-LazierAttributes](http://rt.cpan.org/NoAuth/ReportBug.html?Queue=MooX-LazierAttributes).  I will be notified, and then you'll
+=head1 AUTHOR
+
+Robert Acock, C<< <thisusedtobeanemail at gmail.com> >>
+
+=head1 BUGS
+
+Please report any bugs or feature requests to C<bug-moox-lazierattributes at rt.cpan.org>, or through
+the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=MooX-LazierAttributes>.  I will be notified, and then you'll
 automatically be notified of progress on your bug as I make changes.
 
-# SUPPORT
+=head1 SUPPORT
 
 You can find documentation for this module with the perldoc command.
 
@@ -38,25 +98,31 @@ You can find documentation for this module with the perldoc command.
 
 You can also look for information at:
 
-- RT: CPAN's request tracker (report bugs here)
+=over 4
 
-    [http://rt.cpan.org/NoAuth/Bugs.html?Dist=MooX-LazierAttributes](http://rt.cpan.org/NoAuth/Bugs.html?Dist=MooX-LazierAttributes)
+=item * RT: CPAN's request tracker (report bugs here)
 
-- AnnoCPAN: Annotated CPAN documentation
+L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=MooX-LazierAttributes>
 
-    [http://annocpan.org/dist/MooX-LazierAttributes](http://annocpan.org/dist/MooX-LazierAttributes)
+=item * AnnoCPAN: Annotated CPAN documentation
 
-- CPAN Ratings
+L<http://annocpan.org/dist/MooX-LazierAttributes>
 
-    [http://cpanratings.perl.org/d/MooX-LazierAttributes](http://cpanratings.perl.org/d/MooX-LazierAttributes)
+=item * CPAN Ratings
 
-- Search CPAN
+L<http://cpanratings.perl.org/d/MooX-LazierAttributes>
 
-    [http://search.cpan.org/dist/MooX-LazierAttributes/](http://search.cpan.org/dist/MooX-LazierAttributes/)
+=item * Search CPAN
 
-# ACKNOWLEDGEMENTS
+L<http://search.cpan.org/dist/MooX-LazierAttributes/>
 
-# LICENSE AND COPYRIGHT
+=back
+
+
+=head1 ACKNOWLEDGEMENTS
+
+
+=head1 LICENSE AND COPYRIGHT
 
 Copyright 2017 Robert Acock.
 
@@ -64,7 +130,7 @@ This program is free software; you can redistribute it and/or modify it
 under the terms of the the Artistic License (2.0). You may obtain a
 copy of the full license at:
 
-[http://www.perlfoundation.org/artistic\_license\_2\_0](http://www.perlfoundation.org/artistic_license_2_0)
+L<http://www.perlfoundation.org/artistic_license_2_0>
 
 Any use, modification, and distribution of the Standard or Modified
 Versions is governed by this Artistic License. By using, modifying or
@@ -95,3 +161,8 @@ YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT HOLDER OR
 CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR
 CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT OF THE USE OF THE PACKAGE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+=cut
+
+1; # End of MooX::LazierAttributes
