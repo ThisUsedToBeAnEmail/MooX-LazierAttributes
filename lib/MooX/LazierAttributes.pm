@@ -5,9 +5,7 @@ use warnings;
 
 use MooX::ReturnModifiers qw/return_modifiers/;
 
-use Carp qw/croak/;
-
-our $VERSION = '0.01';
+our $VERSION = '0.03';
 
 sub import {
     my $target = caller;
@@ -29,8 +27,8 @@ sub construct_attribute {
     my $spec = shift;
     my %attr = ();
     $attr{is} = $spec->[0];
-    $attr{default} = sub { $spec->[1] };
-    map { $attr{$_} = $spec->[3]->{$_} } keys %{ $spec->[3] };
+    $attr{default} = sub { $spec->[1] } if defined $spec->[1];
+    map { $attr{$_} = $spec->[2]->{$_} } keys %{ $spec->[2] };
     return %attr;
 }
 
@@ -41,16 +39,13 @@ __END__
 
 =head1 NAME
 
-MooX::LazierAttributes - Lazier Attributes, well It lets me type 'has', 'is', 'default' less.
+MooX::LazierAttributes - Lazier Attributes.
 
 =head1 VERSION
 
-Version 0.01
+Version 0.03
 
 =cut
-
-our $VERSION = '0.01';
-
 
 =head1 SYNOPSIS
 

@@ -14,7 +14,9 @@ attributes (
     five     => [ 'ro', $obj ],
     six      => [ 'ro', 0 ],
     seven    => [ 'ro', undef ],
-    eight    => [ 'rw' ]
+    eight    => [ 'rw' ],
+    nine     => [ 'ro', { broken => 'thing' }, { lazy => 1 } ],
+    ten      => [ 'rw', {}],
 );
 
 
