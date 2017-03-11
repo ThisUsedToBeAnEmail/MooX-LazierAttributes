@@ -16,5 +16,8 @@ is($basics->seven, undef, "undef value");
 is($basics->eight, undef, "undef value");
 is_deeply($basics->nine, { 'broken' => 'thing' }, 'fix my broken code');
 is_deeply($basics->ten, {}, 'fix my broken code');
+is_deeply($basics->eleven, 'test this', 'arrayref of names - eleven');
+is_deeply($basics->twelve, 'test this', 'arrayref of names - twelve');
+is_deeply($basics->thirteen, 'test this', 'arrayref of names - thirteen');
 
 done_testing();

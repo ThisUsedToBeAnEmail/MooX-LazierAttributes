@@ -5,7 +5,7 @@ use warnings;
 use Scalar::Util qw/reftype blessed/;
 use MooX::ReturnModifiers qw/return_modifiers/;
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 use constant ro => 'ro';
 use constant rw => 'rw';
@@ -30,9 +30,13 @@ sub import {
     }
 
     my $attributes = sub {
-        my %attr = @_;
-        while ( my ($name, $spec) = each %attr) {
-            $modifiers{has}->($name, construct_attribute($spec));
+        my @attr = @_;
+        while (@attr) {
+            my @name = ref $attr[0] eq 'ARRAY' ? @{ shift @attr } : shift @attr;
+            my $spec = shift @attr;
+            for ( @name ) {
+                $modifiers{has}->($_, construct_attribute($spec));
+            }
         }
     };
 
@@ -83,7 +87,7 @@ MooX::LazierAttributes - Lazier Attributes.
 
 =head1 VERSION
 
-Version 0.06
+Version 0.07
 
 =cut
 
@@ -97,7 +101,8 @@ Version 0.06
     attributes (
         one   => [ro],
         two   => [ro, {}],
-        three => [rw, My::Thing->new(), { lzy, clr }]
+        three => [rw, My::Thing->new(), { lzy, clr }],
+        [qw/four five six/] => [ro, 'ruling the world'],
     );
 
     .....

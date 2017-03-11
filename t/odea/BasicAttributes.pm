@@ -14,6 +14,7 @@ attributes (
     eight    => [ 'rw' ],
     nine     => [ ro, { broken => 'thing' }, { lzy } ],
     ten      => [ 'rw', {}],
+    [qw/eleven twelve thirteen/] => [ro, 'test this'],
 );
 
 1;
