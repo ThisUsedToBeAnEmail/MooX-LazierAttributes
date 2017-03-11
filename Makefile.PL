@@ -21,6 +21,8 @@ WriteMakefile(
     },
     PREREQ_PM => {
         'MooX::ReturnModifiers' => '0.03',
+        'Scalar::Util' => 0,
+        'constant' => 0,
     },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean => { FILES => 'MooX-LazierAttributes-*' },

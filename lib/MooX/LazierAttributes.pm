@@ -2,14 +2,31 @@ package MooX::LazierAttributes;
 
 use strict;
 use warnings;
-
+use Scalar::Util qw/reftype blessed/;
 use MooX::ReturnModifiers qw/return_modifiers/;
 
-our $VERSION = '0.03';
+our $VERSION = '0.05';
+
+use constant ro => 'ro';
+use constant rw => 'rw';
+use constant lzy => ( lazy => 1 );
+use constant bld => ( builder => 1 );
+use constant lzy_bld => ( lazy_build => 1 );
+use constant trg => ( trigger => 1 );
+use constant clr => ( clearer => 1 );
+use constant req => ( required => 1 );
+
+our @EXPORT = qw/$ro $rw/;
 
 sub import {
     my $target = caller;
     my %modifiers = return_modifiers($target);
+        
+    {
+        no strict 'refs';
+        ${"${target}::"}{$_} = ${__PACKAGE__."::"}{$_} 
+        foreach ( qw/ro rw lzy bld lzy_bld trg clr req/ );
+    }
 
     my $attributes = sub {
         my %attr = @_;
@@ -27,9 +44,31 @@ sub construct_attribute {
     my $spec = shift;
     my %attr = ();
     $attr{is} = $spec->[0];
-    $attr{default} = sub { $spec->[1] } if defined $spec->[1];
+    $attr{default} = sub { _clone($spec->[1]) } if defined $spec->[1];
     map { $attr{$_} = $spec->[2]->{$_} } keys %{ $spec->[2] };
     return %attr;
+}
+
+sub _clone {
+    my ($to_clone) = @_;
+
+    my $blessed = blessed $to_clone;
+    my $clone    = _deep_clone($to_clone);
+    return $blessed ? bless $clone, $blessed : $clone;
+}
+
+sub _deep_clone {
+    my ($to_clone) = @_;
+    if ( reftype( \$to_clone ) eq 'SCALAR' ) {
+        return $to_clone;
+    }
+    elsif ( reftype($to_clone) eq 'HASH' ) {
+        return { map +( $_ => _clone( $to_clone->{$_} ) ), keys %$to_clone };
+    }
+    elsif ( reftype($to_clone) eq 'ARRAY' ) {
+        return [ map _clone($_), @$to_clone ];
+    }
+    return $to_clone;
 }
 
 1;
@@ -43,7 +82,7 @@ MooX::LazierAttributes - Lazier Attributes.
 
 =head1 VERSION
 
-Version 0.03
+Version 0.05
 
 =cut
 
@@ -55,9 +94,9 @@ Version 0.03
     use MooX::LazierAttributes;
 
     attributes (
-        one   => ['ro'],
-        two   => ['ro', {}],
-        three => ['rw', $obj { clearer => 1 }]
+        one   => [ro],
+        two   => [ro, {}],
+        three => [rw, My::Thing->new(), { lzy, clr }]
     );
 
     .....
@@ -74,6 +113,42 @@ Version 0.03
 =head1 EXPORT
 
 =head2 attributes
+
+=head1 Constants
+
+=head3 ro
+
+'ro'
+
+=head3 rw
+
+'rw'
+
+=head3 lzy;
+
+( lazy => 1 )
+
+=head3 bld
+
+( builder => 1 )
+
+=head2 lzy_bld 
+
+( lazy_build => 1 ),
+
+=head2 trg
+
+( tigger => 1 ),
+
+=head2 req
+
+( required => 1 ),
+
+=head1 Maybe in the future
+
+lzy_bld_hash
+
+( lazy => 1, builder => 1 ) .... sub _build_thing { return { } }
 
 =head1 AUTHOR
 

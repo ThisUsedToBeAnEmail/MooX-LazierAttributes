@@ -3,21 +3,17 @@ package t::odea::BasicAttributes;
 use Moo;
 use MooX::LazierAttributes;
 
-use Test::MockObject;
-(my $obj = Test::MockObject->new->set_always( echo => 'one two three' ))->set_isa('Thing');
-
 attributes (
     one      => [ 'rw', 10 ],    
-    two      => [ 'ro', [qw/one two three/] ],    
+    two      => [ ro, [qw/one two three/] ],    
     three    => [ 'ro', { one => 'two' } ],    
     four     => [ 'ro', 'a default value' ],
-    five     => [ 'ro', $obj ],
+    five     => [ 'ro', bless {}, 'Thing' ],
     six      => [ 'ro', 0 ],
     seven    => [ 'ro', undef ],
     eight    => [ 'rw' ],
-    nine     => [ 'ro', { broken => 'thing' }, { lazy => 1 } ],
+    nine     => [ ro, { broken => 'thing' }, { lzy } ],
     ten      => [ 'rw', {}],
 );
-
 
 1;
