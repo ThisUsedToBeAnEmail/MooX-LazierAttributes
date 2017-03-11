@@ -5,10 +5,11 @@ use warnings;
 use Scalar::Util qw/reftype blessed/;
 use MooX::ReturnModifiers qw/return_modifiers/;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 use constant ro => 'ro';
 use constant rw => 'rw';
+use constant nan => undef;
 use constant lzy => ( lazy => 1 );
 use constant bld => ( builder => 1 );
 use constant lzy_bld => ( lazy_build => 1 );
@@ -25,7 +26,7 @@ sub import {
     {
         no strict 'refs';
         ${"${target}::"}{$_} = ${__PACKAGE__."::"}{$_} 
-        foreach ( qw/ro rw lzy bld lzy_bld trg clr req/ );
+        foreach ( qw/ro rw nan lzy bld lzy_bld trg clr req/ );
     }
 
     my $attributes = sub {
@@ -82,7 +83,7 @@ MooX::LazierAttributes - Lazier Attributes.
 
 =head1 VERSION
 
-Version 0.05
+Version 0.06
 
 =cut
 
@@ -123,6 +124,10 @@ Version 0.05
 =head3 rw
 
 'rw'
+
+=head3 nan
+
+undef
 
 =head3 lzy;
 
