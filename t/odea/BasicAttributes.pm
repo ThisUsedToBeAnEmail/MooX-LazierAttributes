@@ -15,6 +15,11 @@ attributes (
     nine     => [ ro, { broken => 'thing' }, { lzy } ],
     ten      => [ 'rw', {}],
     [qw/eleven twelve thirteen/] => [ro, 'test this'],
+    fourteen => [ rw, nan, { bld, clr, lzy } ],
 );
+
+sub _build_fourteen {
+    return 100;
+}
 
 1;

@@ -1,10 +1,10 @@
 use Test::More;
 
-use t::odea::BasicAttributes;
+use t::odea::HasAttributes;
 
 use lib '.';
 
-my $basics = t::odea::BasicAttributes->new;
+my $basics = t::odea::HasAttributes->new;
 
 is($basics->one, 10, 'okay we got 10');
 is_deeply($basics->two, [qw/one two three/], 'is deeply');
@@ -24,5 +24,6 @@ ok($basics->fourteen(50), 'set 50');
 is($basics->fourteen, 50, 'okay 50');
 ok($basics->clear_fourteen, 'clear fourteen');
 is($basics->fourteen, 100, 'okay 100');
+
 
 done_testing();

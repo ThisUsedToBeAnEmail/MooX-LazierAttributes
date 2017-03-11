@@ -5,10 +5,12 @@ use warnings;
 use Scalar::Util qw/reftype blessed/;
 use MooX::ReturnModifiers qw/return_modifiers/;
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 use constant ro => 'ro';
+use constant is_ro => ( is => ro );
 use constant rw => 'rw';
+use constant is_rw => ( is => rw );
 use constant nan => undef;
 use constant lzy => ( lazy => 1 );
 use constant bld => ( builder => 1 );
@@ -26,7 +28,7 @@ sub import {
     {
         no strict 'refs';
         ${"${target}::"}{$_} = ${__PACKAGE__."::"}{$_} 
-        foreach ( qw/ro rw nan lzy bld lzy_bld trg clr req/ );
+        foreach ( qw/ro is_ro rw is_rw nan lzy bld lzy_bld trg clr req/ );
     }
 
     my $attributes = sub {
@@ -87,7 +89,7 @@ MooX::LazierAttributes - Lazier Attributes.
 
 =head1 VERSION
 
-Version 0.07
+Version 0.08
 
 =cut
 
@@ -105,6 +107,8 @@ Version 0.07
         [qw/four five six/] => [ro, 'ruling the world'],
     );
 
+    has seven => ( is_ro, lzy, default => sub { [qw/a b c/] });
+
     .....
 
     my $hello = Hello::World->new({ 
@@ -120,15 +124,23 @@ Version 0.07
 
 =head2 attributes
 
-=head1 Constants
+=head2 Constants
 
 =head3 ro
 
 'ro'
 
+=head3 is_ro
+
+( is => 'ro' )
+
 =head3 rw
 
 'rw'
+
+=head3 is_rw
+
+( is => 'rw' )
 
 =head3 nan
 
@@ -142,23 +154,25 @@ undef
 
 ( builder => 1 )
 
-=head2 lzy_bld 
+=head3 lzy_bld 
 
 ( lazy_build => 1 ),
 
-=head2 trg
+=head3 trg
 
 ( tigger => 1 ),
 
-=head2 req
+=head3 req
 
 ( required => 1 ),
 
-=head1 Maybe in the future
+=head1 Acknowledgements
 
-lzy_bld_hash
+One would like to Acknowledge Haarg for taking the time to read my code and pointing me in the right direction.
 
-( lazy => 1, builder => 1 ) .... sub _build_thing { return { } }
+=head1 More than one way
+
+You may also be interested in - L<MooseX::Has::Sugar>. 
 
 =head1 AUTHOR
 
