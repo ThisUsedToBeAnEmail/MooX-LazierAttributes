@@ -12,8 +12,6 @@ t/03-has_attributes.t
 t/manifest.t
 t/odea/BasicAttributes.pm
 t/odea/Calculator.pm
-t/odea/ExtendsBasicAttributes.pm
-t/odea/ExtendsHasAttributes.pm
 t/odea/HasAttributes.pm
 t/pod-coverage.t
 t/pod.t

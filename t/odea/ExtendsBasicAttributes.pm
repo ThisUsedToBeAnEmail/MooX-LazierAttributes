@@ -11,7 +11,8 @@ attributes (
     '+three' => [ { three => 'four' }],
     '+four'  => [ 'a different value'],
     '+five'  => [ bless {}, 'Okays'],
-    six      => [ro, 1 ],
+    six      => [ ro, 1 ],
+    '+seven' => [ nan, { lzy } ],
     [qw/+eleven +twelve +thirteen/] => ['ahhhhhhhhhhhhh']
 );
 

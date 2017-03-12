@@ -4,7 +4,7 @@ use Moo;
 use MooX::LazierAttributes;
 
 attributes (
-    one      => [ 'rw', 10 ],    
+    one      => [ 10 ],    
     two      => [ ro, [qw/one two three/] ],    
     three    => [ 'ro', { one => 'two' } ],    
     four     => [ 'ro', 'a default value' ],

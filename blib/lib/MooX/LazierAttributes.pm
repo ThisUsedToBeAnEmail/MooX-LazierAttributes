@@ -37,8 +37,9 @@ sub import {
             my @names = ref $attr[0] eq 'ARRAY' ? @{ shift @attr } : shift @attr;
             my @spec = @{ shift @attr };
             for my $name ( @names ) {
-                unshift @spec, 'set' if ( $name =~ m/^\+/ and (!$spec[0] || $spec[0] ne 'set'));
-                unshift @spec, ro unless ( ref \$spec[0] eq 'SCALAR' and $spec[0] =~ m/^ro|rw|set$/ );
+                if ( $name =~ m/^\+/ and (!$spec[0] or $spec[0] ne 'set')) {
+                    unshift @spec, 'set';
+                }
                 $modifiers{has}->($name, construct_attribute(@spec));
             }
         }
@@ -103,7 +104,7 @@ Version 0.09
     use MooX::LazierAttributes;
 
     attributes (
-        one   => [], # defaults to be ro
+        one   => [ro],
         two   => [ro, {}],
         three => [rw, My::Thing->new(), { lzy, clr }],
         [qw/four five six/] => [ro, 'ruling the world'],
