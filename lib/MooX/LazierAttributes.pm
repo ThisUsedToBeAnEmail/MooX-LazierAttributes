@@ -5,41 +5,43 @@ use warnings;
 use Scalar::Util qw/reftype blessed/;
 use MooX::ReturnModifiers qw/return_modifiers/;
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
-use constant ro => 'ro';
-use constant is_ro => ( is => ro );
-use constant rw => 'rw';
-use constant is_rw => ( is => rw );
-use constant nan => undef;
-use constant lzy => ( lazy => 1 );
-use constant bld => ( builder => 1 );
+use constant ro      => 'ro';
+use constant is_ro   => ( is => ro );
+use constant rw      => 'rw';
+use constant is_rw   => ( is => rw );
+use constant nan     => undef;
+use constant lzy     => ( lazy => 1 );
+use constant bld     => ( builder => 1 );
 use constant lzy_bld => ( lazy_build => 1 );
-use constant trg => ( trigger => 1 );
-use constant clr => ( clearer => 1 );
-use constant req => ( required => 1 );
-
-our @EXPORT = qw/$ro $rw/;
+use constant trg     => ( trigger => 1 );
+use constant clr     => ( clearer => 1 );
+use constant req     => ( required => 1 );
 
 sub import {
-    my $target = caller;
+    my $target    = caller;
     my %modifiers = return_modifiers($target);
-        
+
     {
         no strict 'refs';
-        ${"${target}::"}{$_} = ${__PACKAGE__."::"}{$_} 
-        foreach ( qw/ro is_ro rw is_rw nan lzy bld lzy_bld trg clr req/ );
+        ${"${target}::"}{$_} = ${ __PACKAGE__ . "::" }{$_}
+          foreach (qw/ro is_ro rw is_rw nan lzy bld lzy_bld trg clr req/);
     }
 
     my $attributes = sub {
         my @attr = @_;
         while (@attr) {
-            my @names = ref $attr[0] eq 'ARRAY' ? @{ shift @attr } : shift @attr;
+            my @names =
+              ref $attr[0] eq 'ARRAY' ? @{ shift @attr } : shift @attr;
             my @spec = @{ shift @attr };
-            for my $name ( @names ) {
-                unshift @spec, 'set' if ( $name =~ m/^\+/ and (!$spec[0] || $spec[0] ne 'set'));
-                unshift @spec, ro unless ( ref \$spec[0] eq 'SCALAR' and $spec[0] =~ m/^ro|rw|set$/ );
-                $modifiers{has}->($name, construct_attribute(@spec));
+            for my $name (@names) {
+                unshift @spec, 'set'
+                  if ( $name =~ m/^\+/ and ( !$spec[0] || $spec[0] ne 'set' ) );
+                unshift @spec, ro
+                  unless ( ref \$spec[0] eq 'SCALAR'
+                    and $spec[0] =~ m/^ro|rw|set$/ );
+                $modifiers{has}->( $name, construct_attribute(@spec) );
             }
         }
     };
@@ -53,7 +55,9 @@ sub construct_attribute {
     my @spec = @_;
     my %attr = ();
     $attr{is} = $spec[0] unless $spec[0] eq 'set';
-    $attr{default} = sub { _clone($spec[1]) } if defined $spec[1];
+    $attr{default} =
+      ref $spec[1] eq 'CODE' ? $spec[1] : sub { _clone( $spec[1] ) }
+      if defined $spec[1];
     map { $attr{$_} = $spec[2]->{$_} } keys %{ $spec[2] };
     return %attr;
 }
@@ -62,7 +66,7 @@ sub _clone {
     my ($to_clone) = @_;
 
     my $blessed = blessed $to_clone;
-    my $clone    = _deep_clone($to_clone);
+    my $clone   = _deep_clone($to_clone);
     return $blessed ? bless $clone, $blessed : $clone;
 }
 
@@ -91,7 +95,7 @@ MooX::LazierAttributes - Lazier Attributes.
 
 =head1 VERSION
 
-Version 0.09
+Version 0.10
 
 =cut
 
@@ -104,9 +108,9 @@ Version 0.09
 
     attributes (
         one   => [], # defaults to be ro
-        two   => [ro, {}],
-        three => [rw, My::Thing->new(), { lzy, clr }],
-        [qw/four five six/] => [ro, 'ruling the world'],
+        two   => [{}],
+        three => [sub { My::Thing->new() }, { lzy, clr }],
+        [qw/four five six/] => [rw, 'ruling the world'],
     );
 
     has seven => ( is_ro, lzy, default => sub { [qw/a b c/] });

@@ -25,6 +25,7 @@ ok($basics->fourteen(50), 'set 50');
 is($basics->fourteen, 50, 'okay 50');
 ok($basics->clear_fourteen, 'clear fourteen');
 is($basics->fourteen, 100, 'okay 100');
+is_deeply($basics->fifthteen, { correct => 'way' }, 'okay the correct way');
 
 my $extends = t::odea::ExtendsBasicAttributes->new;
 
@@ -40,5 +41,6 @@ is_deeply($extends->eleven, 'ahhhhhhhhhhhhh', 'arrayref of names - eleven');
 is_deeply($extends->twelve, 'ahhhhhhhhhhhhh', 'arrayref of names - twelve');
 is_deeply($extends->thirteen, 'ahhhhhhhhhhhhh', 'arrayref of names - thirteen');
 is($extends->fourteen, 40000, 'okay 100');
+is_deeply($basics->fifthteen, { correct => 'way' }, 'okay the correct way');
 
 done_testing();

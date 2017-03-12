@@ -16,6 +16,7 @@ attributes (
     ten      => [ 'rw', {}],
     [qw/eleven twelve thirteen/] => [ro, 'test this'],
     fourteen => [ rw, nan, { bld, clr, lzy } ],
+    fifthteen => [ sub { { correct => 'way' } } ],
 );
 
 sub _build_fourteen {
