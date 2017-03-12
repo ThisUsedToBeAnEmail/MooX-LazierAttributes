@@ -32,16 +32,12 @@ sub import {
     my $attributes = sub {
         my @attr = @_;
         while (@attr) {
-            my @names =
-              ref $attr[0] eq 'ARRAY' ? @{ shift @attr } : shift @attr;
+            my @names = ref $attr[0] eq 'ARRAY' ? @{ shift @attr } : shift @attr;
             my @spec = @{ shift @attr };
-            for my $name (@names) {
-                unshift @spec, 'set'
-                  if ( $name =~ m/^\+/ and ( !$spec[0] || $spec[0] ne 'set' ) );
-                unshift @spec, ro
-                  unless ( ref \$spec[0] eq 'SCALAR'
-                    and $spec[0] =~ m/^ro|rw|set$/ );
-                $modifiers{has}->( $name, construct_attribute(@spec) );
+            for (@names) {
+                unshift @spec, 'set' if $_ =~ m/^\+/ and ( !$spec[0] || $spec[0] ne 'set' );
+                unshift @spec, ro unless ref \$spec[0] eq 'SCALAR' and $spec[0] =~ m/^ro|rw|set$/;
+                $modifiers{has}->( $_, construct_attribute(@spec) );
             }
         }
     };
@@ -55,10 +51,9 @@ sub construct_attribute {
     my @spec = @_;
     my %attr = ();
     $attr{is} = $spec[0] unless $spec[0] eq 'set';
-    $attr{default} =
-      ref $spec[1] eq 'CODE' ? $spec[1] : sub { _clone( $spec[1] ) }
+    $attr{default} = ref $spec[1] eq 'CODE' ? $spec[1] : sub { _clone( $spec[1] ) }
       if defined $spec[1];
-    map { $attr{$_} = $spec[2]->{$_} } keys %{ $spec[2] };
+    $attr{$_} = $spec[2]->{$_} foreach keys %{ $spec[2] };
     return %attr;
 }
 
@@ -72,15 +67,10 @@ sub _clone {
 
 sub _deep_clone {
     my ($to_clone) = @_;
-    if ( reftype( \$to_clone ) eq 'SCALAR' ) {
-        return $to_clone;
-    }
-    elsif ( reftype($to_clone) eq 'HASH' ) {
-        return { map +( $_ => _clone( $to_clone->{$_} ) ), keys %$to_clone };
-    }
-    elsif ( reftype($to_clone) eq 'ARRAY' ) {
-        return [ map _clone($_), @$to_clone ];
-    }
+    my $reftype = reftype($to_clone) // reftype(\$to_clone);
+    $reftype eq 'SCALAR' and return $to_clone;
+    $reftype eq 'HASH'   and return { map +( $_ => _clone( $to_clone->{$_} ) ), keys %$to_clone };
+    $reftype eq 'ARRAY'  and return [ map _clone($_), @$to_clone ];
     return $to_clone;
 }
 

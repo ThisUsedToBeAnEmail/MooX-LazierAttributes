@@ -13,6 +13,6 @@ Revision history for MooX-LazierAttributes
         - Add tests for extending *has* attributes
         - Add tests for extending *attributes* attributes
 
-0.10    13/03/2017
+0.10    12/03/2017
         - default to 'ro' if ro|rw is not passed as the first argument;
         - Accept CODE refs as the default - attributes( shiny => [ sub { HTTP::Tiny->new } ] )
