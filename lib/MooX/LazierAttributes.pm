@@ -5,7 +5,7 @@ use warnings;
 use Scalar::Util qw/reftype blessed/;
 use MooX::ReturnModifiers qw/return_modifiers/;
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 use constant ro => 'ro';
 use constant is_ro => ( is => ro );
@@ -34,10 +34,13 @@ sub import {
     my $attributes = sub {
         my @attr = @_;
         while (@attr) {
-            my @name = ref $attr[0] eq 'ARRAY' ? @{ shift @attr } : shift @attr;
-            my $spec = shift @attr;
-            for ( @name ) {
-                $modifiers{has}->($_, construct_attribute($spec));
+            my @names = ref $attr[0] eq 'ARRAY' ? @{ shift @attr } : shift @attr;
+            my @spec = @{ shift @attr };
+            for my $name ( @names ) {
+                if ( $name =~ m/^\+/ and $spec[0] ne 'set' ) {
+                    unshift @spec, 'set';
+                }
+                $modifiers{has}->($name, construct_attribute(@spec));
             }
         }
     };
@@ -48,11 +51,11 @@ sub import {
 }
 
 sub construct_attribute {
-    my $spec = shift;
+    my @spec = @_;
     my %attr = ();
-    $attr{is} = $spec->[0];
-    $attr{default} = sub { _clone($spec->[1]) } if defined $spec->[1];
-    map { $attr{$_} = $spec->[2]->{$_} } keys %{ $spec->[2] };
+    $attr{is} = $spec[0] unless $spec[0] eq 'set';
+    $attr{default} = sub { _clone($spec[1]) } if defined $spec[1];
+    map { $attr{$_} = $spec[2]->{$_} } keys %{ $spec[2] };
     return %attr;
 }
 
@@ -89,7 +92,7 @@ MooX::LazierAttributes - Lazier Attributes.
 
 =head1 VERSION
 
-Version 0.08
+Version 0.09
 
 =cut
 
@@ -119,6 +122,27 @@ Version 0.08
     $hello->one;    # 1
     $hello->two;    # { three => 'four' }
     $hello->three;  # $obj
+
+    ... Extending .....
+
+    package Extends::Hello::World;
+
+    use Moo;
+    use MooX::LazierAttributes;
+
+    extends 'Hello::World';
+    
+    attributes (
+        '+one' => ['hey'],
+        '+two' => [[qw/why are you inside/]],
+        [qw/+four five six/] => ['well the sun it hurts my eyes'],
+    );
+
+    my $hello = Extends::Hello::World->new();
+
+    $hello->one;    # hey
+    $hello->twp;    # ['why', 'are', 'you', 'inside'],
+    $hello->four;   # well the sun it hurts my eyes
 
 =head1 EXPORT
 
