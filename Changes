@@ -16,3 +16,7 @@ Revision history for MooX-LazierAttributes
 0.10    12/03/2017
         - default to 'ro' if ro|rw is not passed as the first argument;
         - Accept CODE refs as the default - attributes( shiny => [ sub { HTTP::Tiny->new } ] )
+
+0.11    13/03/2017
+        - Type::Tiny is nice, so 0.11 adds support for it. The second argument can now either be the 
+        value (default) or a Type::Tiny Object (isa).

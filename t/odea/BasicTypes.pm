@@ -2,18 +2,17 @@ package t::odea::BasicTypes;
 
 use Moo;
 use MooX::LazierAttributes;
-use Types::Standard qw/Str HashRef ArrayRef/;
+use Types::Standard qw/Str HashRef ArrayRef Object/;
 
 attributes (
     not => [ Str ],
-    sorry => [ rw, HashRef, { bld } ],
+    [qw/sorry okay/] => [ rw, HashRef, { default => { one => 'two' } } ],
+    another => [rw, HashRef, { lzy_hash }],
+    object => [ ro, Object, { bld } ],
 );
 
-sub _build_sorry {
-    return {
-        one => 'two',
-        three => 'four',
-    };
+sub _build_object{
+    return bless {}, 'Thing';
 }
 
 has thing => (

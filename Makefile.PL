@@ -18,6 +18,7 @@ WriteMakefile(
     BUILD_REQUIRES => {
         'Test::More' => 0,
         'Moo' => 0,
+        'Type::Tiny' => '1.000006', 
     },
     PREREQ_PM => {
         'MooX::ReturnModifiers' => '0.03',

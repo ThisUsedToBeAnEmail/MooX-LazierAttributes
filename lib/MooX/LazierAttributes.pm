@@ -5,19 +5,21 @@ use warnings;
 use Scalar::Util qw/reftype blessed/;
 use MooX::ReturnModifiers qw/return_modifiers/;
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
-use constant ro      => 'ro';
-use constant is_ro   => ( is => ro );
-use constant rw      => 'rw';
-use constant is_rw   => ( is => rw );
-use constant nan     => undef;
-use constant lzy     => ( lazy => 1 );
-use constant bld     => ( builder => 1 );
-use constant lzy_bld => ( lazy_build => 1 );
-use constant trg     => ( trigger => 1 );
-use constant clr     => ( clearer => 1 );
-use constant req     => ( required => 1 );
+use constant ro       => 'ro';
+use constant is_ro    => ( is => ro );
+use constant rw       => 'rw';
+use constant is_rw    => ( is => rw );
+use constant nan      => undef;
+use constant lzy      => ( lazy => 1 );
+use constant bld      => ( builder => 1 );
+use constant lzy_bld  => ( lazy_build => 1 );
+use constant trg      => ( trigger => 1 );
+use constant clr      => ( clearer => 1 );
+use constant req      => ( required => 1 );
+use constant lzy_hash => ( lazy => 1, default => sub { {} });
+use constant lzy_array => ( lazy => 1, default => sub { [] });
 
 sub import {
     my $target    = caller;
@@ -26,7 +28,7 @@ sub import {
     {
         no strict 'refs';
         ${"${target}::"}{$_} = ${ __PACKAGE__ . "::" }{$_}
-          foreach (qw/ro is_ro rw is_rw nan lzy bld lzy_bld trg clr req/);
+          foreach (qw/ro is_ro rw is_rw nan lzy bld lzy_bld trg clr req lzy_hash lzy_array/);
     }
 
     my $attributes = sub {
@@ -34,6 +36,8 @@ sub import {
         while (@attr) {
             my @names = ref $attr[0] eq 'ARRAY' ? @{ shift @attr } : shift @attr;
             my @spec = @{ shift @attr };
+            # push either nan or a default 
+            push @spec, delete $spec[2]->{default}; 
             for (@names) {
                 unshift @spec, 'set' if $_ =~ m/^\+/ and ( !$spec[0] || $spec[0] ne 'set' );
                 unshift @spec, ro unless ref \$spec[0] eq 'SCALAR' and $spec[0] =~ m/^ro|rw|set$/;
@@ -52,10 +56,10 @@ sub construct_attribute {
     my %attr = ();
     $attr{is} = $spec[0] unless $spec[0] eq 'set';
    
-    # ha this is awesome
-    if ( ref $spec[1] eq 'Type::Tiny' ) {
+    if ( ref $spec[1] eq 'Type::Tiny' ) { 
         $attr{isa} = $spec[1];
-        $spec[1] = delete $spec[2]->{default};
+        # pop either nan or the default
+        $spec[1] = pop @spec;
     } 
     
     $attr{default} = ref $spec[1] eq 'CODE' ? $spec[1] : sub { _clone( $spec[1] ) }
@@ -93,7 +97,7 @@ MooX::LazierAttributes - Lazier Attributes.
 
 =head1 VERSION
 
-Version 0.10
+Version 0.11
 
 =cut
 
@@ -107,7 +111,7 @@ Version 0.10
     attributes (
         one   => [], # defaults to be ro
         two   => [{}],
-        three => [sub { My::Thing->new() }, { lzy, clr }],
+        three => [sub { My::Thing->new() }, { lzy, }],
         [qw/four five six/] => [rw, 'ruling the world'],
     );
 
@@ -136,7 +140,7 @@ Version 0.10
     attributes (
         '+one' => ['hey'],
         '+two' => [[qw/why are you inside/]],
-        [qw/+four five six/] => ['well the sun it hurts my eyes'],
+        [qw/+four +five +six/] => ['well the sun it hurts my eyes'],
     );
 
     my $hello = Extends::Hello::World->new();
@@ -145,22 +149,26 @@ Version 0.10
     $hello->twp;    # ['why', 'are', 'you', 'inside'],
     $hello->four;   # well the sun it hurts my eyes
 
-    ... What if I like Type::Tiny ...
+    ... What if I like Types ...
 
     package Hello::World;
     
     use Moo;
     use MooX::LazierAttributes;
-    use Types::Standard;
+    use Types::Standard qw/Str HashRef ArrayRef Object/;
 
     attributes (
         one   => [Str], # defaults to be ro
         two   => [HashRef],
-        three => [sub { My::Thing->new() }, { lzy, clr }], # still works
+        three => [Object, { lzy bld }],
         [qw/four five six/] => [rw, Str, { default => 'ruling the world' }],
     );
 
-    has seven => ( is_ro, lzy, default => sub { [qw/a b c/] });
+    has seven => ( is_ro, lzy, isa => ArrayRef, default => sub { [qw/a b c/] });
+
+    sub _build_three { 
+        return My::Thing->new();
+    }
 
 
 =head1 EXPORT
@@ -208,6 +216,14 @@ undef
 =head3 req
 
 ( required => 1 ),
+
+=head3 lzy_hash
+
+( lazy => 1, default => sub { {} } )
+
+=head3 lzy_array
+
+( lazy => 1, default => sub { [] } )
 
 =head1 Acknowledgements
 
