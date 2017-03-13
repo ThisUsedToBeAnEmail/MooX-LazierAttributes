@@ -51,8 +51,16 @@ sub construct_attribute {
     my @spec = @_;
     my %attr = ();
     $attr{is} = $spec[0] unless $spec[0] eq 'set';
+   
+    # ha this is awesome
+    if ( ref $spec[1] eq 'Type::Tiny' ) {
+        $attr{isa} = $spec[1];
+        $spec[1] = delete $spec[2]->{default};
+    } 
+    
     $attr{default} = ref $spec[1] eq 'CODE' ? $spec[1] : sub { _clone( $spec[1] ) }
-      if defined $spec[1];
+        if defined $spec[1];
+
     $attr{$_} = $spec[2]->{$_} foreach keys %{ $spec[2] };
     return %attr;
 }
@@ -136,6 +144,24 @@ Version 0.10
     $hello->one;    # hey
     $hello->twp;    # ['why', 'are', 'you', 'inside'],
     $hello->four;   # well the sun it hurts my eyes
+
+    ... What if I like Type::Tiny ...
+
+    package Hello::World;
+    
+    use Moo;
+    use MooX::LazierAttributes;
+    use Types::Standard;
+
+    attributes (
+        one   => [Str], # defaults to be ro
+        two   => [HashRef],
+        three => [sub { My::Thing->new() }, { lzy, clr }], # still works
+        [qw/four five six/] => [rw, Str, { default => 'ruling the world' }],
+    );
+
+    has seven => ( is_ro, lzy, default => sub { [qw/a b c/] });
+
 
 =head1 EXPORT
 

@@ -6,8 +6,15 @@ use Types::Standard qw/Str HashRef ArrayRef/;
 
 attributes (
     not => [ Str ],
-    sorry => [ rw, HashRef, { lzy_bld_hash },
+    sorry => [ rw, HashRef, { bld } ],
 );
+
+sub _build_sorry {
+    return {
+        one => 'two',
+        three => 'four',
+    };
+}
 
 has thing => (
     is_rw,
