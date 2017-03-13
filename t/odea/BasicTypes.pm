@@ -4,6 +4,11 @@ use Moo;
 use MooX::LazierAttributes;
 use Types::Standard qw/Str HashRef ArrayRef/;
 
+attributes (
+    not => [ Str ],
+    sorry => [ rw, HashRef, { lzy_bld_hash },
+);
+
 has thing => (
     is_rw,
     isa => Str,
