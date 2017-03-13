@@ -1,7 +1,23 @@
-package MooX::LazierAttributes::Types;
+package t::odea::BasicTypes;
 
-use Type::Tiny;
-# use Type::Standard
+use Moo;
+use MooX::LazierAttributes;
+use Types::Standard qw/Str HashRef ArrayRef/;
+
+has thing => (
+    is_rw,
+    isa => Str,
+);
+
+has why => (
+    is_ro,
+    isa => HashRef,
+);
+
+has care => (
+    is_ro,
+    isa => ArrayRef,
+);
 
 =pod
 
@@ -36,5 +52,6 @@ use Type::Tiny;
         return %args;
     }
 
-
 =cut
+
+1;
