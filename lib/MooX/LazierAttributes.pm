@@ -22,13 +22,14 @@ use constant lzy_hash => ( lazy => 1, default => sub { {} });
 use constant lzy_array => ( lazy => 1, default => sub { [] });
 
 sub import {
+    my ($package, @export) = @_;
     my $target    = caller;
     my %modifiers = return_modifiers($target);
 
     {
         no strict 'refs';
-        ${"${target}::"}{$_} = ${ __PACKAGE__ . "::" }{$_}
-          foreach (qw/ro is_ro rw is_rw nan lzy bld lzy_bld trg clr req lzy_hash lzy_array/);
+        ${"${target}::"}{$_} = ${"${package}::"}{$_}
+          foreach (scalar @export ? @export : qw/ro is_ro rw is_rw nan lzy bld lzy_bld trg clr req lzy_hash lzy_array/);
     }
 
     my $attributes = sub {
