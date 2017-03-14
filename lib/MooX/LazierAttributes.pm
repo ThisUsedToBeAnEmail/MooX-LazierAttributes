@@ -5,7 +5,7 @@ use warnings;
 use Scalar::Util qw/reftype blessed/;
 use MooX::ReturnModifiers qw/return_modifiers/;
 
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 
 use constant ro       => 'ro';
 use constant is_ro    => ( is => ro );
@@ -98,7 +98,7 @@ MooX::LazierAttributes - Lazier Attributes.
 
 =head1 VERSION
 
-Version 0.11
+Version 0.12
 
 =cut
 
@@ -155,13 +155,13 @@ Version 0.11
     package Hello::World;
     
     use Moo;
-    use MooX::LazierAttributes;
+    use MooX::LazierAttributes qw/is_ro rw lzy bld/;
     use Types::Standard qw/Str HashRef ArrayRef Object/;
 
     attributes (
         one   => [Str], # defaults to be ro
         two   => [HashRef],
-        three => [Object, { lzy bld }],
+        three => [Object, { lzy, bld }],
         [qw/four five six/] => [rw, Str, { default => 'ruling the world' }],
     );
 
@@ -176,7 +176,76 @@ Version 0.11
 
 =head2 attributes
 
+I'm a list, my content gets transformed into Moo Attributes. My keys can either be a scalar or an array reference, 
+they are used as the (*has*) name when constructing the Attributes.
+    
+    one => [],
+    [qw/two three/] => []
+    ...
+    has one => ( is => 'ro' );
+    has [qw/two three/] => ( is => 'ro' );
+
+My value has to be an array reference, which can contain 3 indexes. If I was to write a read-write attribute that 
+had a type constraint was lazy and also had a builder. It would look something like this.
+
+    attribute (
+        example => [ rw, ArrayRef, { lzy, bld } ],
+    );
+    
+    ....
+    
+    has example => (
+        is => 'rw',
+        isa => ArrayRef,
+        lazy => 1,
+        builder => 1,
+    );
+
+The values first index - *is* - can only ever be ro/rw. A lot of the time you only actually want read-only so we can default that.
+I'll show you Another example this time we have a read-only attribute, that has a type constraint and is required.
+
+    attributes (
+        example => [ Str, { req } ]
+    )
+    
+    ....
+    
+    has example => (
+        is => 'ro',
+        isa => Str,  
+        required => 1,
+    );
+
+As you can see we have dropped the first index (*is*). The last index the [1] above and [2] in my first 
+example must always be a hash reference that conforms to Moo attribute Standards. This module exports 
+constants that try to make filling this reference less repetitive. Sometimes you may not always need extra,
+Moo Magic for example a read-only attribute with just a type constraint.
+
+    attributes (
+        example => [ArrayRef],
+    );
+
+    ....
+    
+    has example => (
+        is => 'ro',
+        isa => ArrayRef
+    );
+
+And just a read-only attribute...
+    
+    attributes (
+        example => [],
+    );
+
+=back
+
 =head2 Constants
+
+When you *use* L<MooX::LazierAttributes> by default It will export the following constants.
+You can restrict which constants get imported the usual way you would with any other Exporter.
+
+    use MooX::LazierAttributes qw/ro rw lzy bld/;
 
 =head3 ro
 
