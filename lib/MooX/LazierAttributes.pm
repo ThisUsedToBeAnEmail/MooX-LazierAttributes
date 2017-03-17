@@ -5,7 +5,7 @@ use warnings;
 use Scalar::Util qw/reftype blessed/;
 use MooX::ReturnModifiers qw/return_modifiers/;
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 
 use constant ro       => 'ro';
 use constant is_ro    => ( is => ro );
@@ -26,12 +26,6 @@ sub import {
     my $target    = caller;
     my %modifiers = return_modifiers($target);
 
-    {
-        no strict 'refs';
-        ${"${target}::"}{$_} = ${"${package}::"}{$_}
-          foreach (scalar @export ? @export : qw/ro is_ro rw is_rw nan lzy bld lzy_bld trg clr req lzy_hash lzy_array/);
-    }
-
     my $attributes = sub {
         my @attr = @_;
         while (@attr) {
@@ -47,7 +41,12 @@ sub import {
         }
     };
 
-    { no strict 'refs'; *{"${target}::attributes"} = $attributes; }
+    { 
+        no strict 'refs'; 
+        ${"${target}::"}{$_} = ${"${package}::"}{$_}
+          foreach (scalar @export ? @export : qw/ro is_ro rw is_rw nan lzy bld lzy_bld trg clr req lzy_hash lzy_array/);
+        *{"${target}::attributes"} = $attributes; 
+    }
 
     return 1;
 }
@@ -98,7 +97,7 @@ MooX::LazierAttributes - Lazier Attributes.
 
 =head1 VERSION
 
-Version 0.12
+Version 0.13
 
 =cut
 
@@ -147,7 +146,7 @@ Version 0.12
     my $hello = Extends::Hello::World->new();
 
     $hello->one;    # hey
-    $hello->twp;    # ['why', 'are', 'you', 'inside'],
+    $hello->two;    # ['why', 'are', 'you', 'inside'],
     $hello->four;   # well the sun it hurts my eyes
 
     ... What if I like Types ...
@@ -176,7 +175,7 @@ Version 0.12
 
 =head2 attributes
 
-I'm a list, my content gets transformed into Moo Attributes. My keys can either be a scalar or an array reference, 
+I'm a list, my content gets transformed into Moo Attributes. My keys can either be a scalar or an array reference of scalars, 
 they are used as the (*has*) name when constructing the Attributes.
     
     one => [],
@@ -188,7 +187,7 @@ they are used as the (*has*) name when constructing the Attributes.
 My value has to be an array reference, which can contain 3 indexes. If I was to write a read-write attribute that 
 had a type constraint was lazy and also had a builder. It would look something like this.
 
-    attribute (
+    attributes (
         example => [ rw, ArrayRef, { lzy, bld } ],
     );
     
@@ -219,7 +218,7 @@ I'll show you Another example this time we have a read-only attribute, that has 
 As you can see we have dropped the first index (*is*). The last index the [1] above and [2] in my first 
 example must always be a hash reference that conforms to Moo attribute Standards. This module exports 
 constants that try to make filling this reference less repetitive. Sometimes you may not always need extra,
-Moo Magic for example a read-only attribute with just a type constraint.
+Moo Magic - a read-only attribute with just a type constraint.
 
     attributes (
         example => [ArrayRef],
@@ -238,12 +237,11 @@ And just a read-only attribute...
         example => [],
     );
 
-=back
-
 =head2 Constants
 
 When you *use* L<MooX::LazierAttributes> by default It will export the following constants.
-You can restrict which constants get imported the usual way you would with any other Exporter.
+
+You can restrict which constants get imported the same way you would with any other Exporter.
 
     use MooX::LazierAttributes qw/ro rw lzy bld/;
 

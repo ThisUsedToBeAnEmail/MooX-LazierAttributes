@@ -9,8 +9,11 @@ t/00-load.t
 t/01-basic_attributes.t
 t/02-the_haarg_test.t
 t/03-has_attributes.t
+t/04-types.t
+t/05-controlling_consts.t
 t/manifest.t
 t/odea/BasicAttributes.pm
+t/odea/BasicTypes.pm
 t/odea/Calculator.pm
 t/odea/ExtendsBasicAttributes.pm
 t/odea/ExtendsHasAttributes.pm
