@@ -36,9 +36,33 @@ run_test(
     name => 'construct_attributes a ro attribute that is required',
 );
 
+run_test_default( 
+    args => ['ro', 'Hello World' ],
+    expected => 'Hello World',
+    name => 'construct_attributes a ro attribute that is required',
+);
+
+run_test_default( 
+    args => ['ro', sub { 'Hello World' } ],
+    expected => 'Hello World',
+    name => 'construct_attributes a ro attribute that is required',
+);
+
+run_test_default( 
+    args => ['ro', undef, { default => sub { 'Hello World' } } ],
+    expected => 'Hello World',
+    name => 'construct_attributes a ro attribute that is required',
+);
+
 sub run_test {
     my %test = @_;
     return is_deeply( {&MooX::LazierAttributes::construct_attribute(@{ $test{args} })}, $test{expected}, "$test{name}");
+}
+
+sub run_test_default {
+    my %test = @_;
+    my %attr = &MooX::LazierAttributes::construct_attribute(@{ $test{args} });
+    return is( $attr{default}->(), $test{expected}, "$test{name}");
 }
 
 done_testing();
