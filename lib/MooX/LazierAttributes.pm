@@ -31,7 +31,7 @@ sub import {
         while (@attr) {
             my @names = ref $attr[0] eq 'ARRAY' ? @{ shift @attr } : shift @attr;
             my @spec = @{ shift @attr };
-            # push either nan or a default 
+            
             push @spec, delete $spec[2]->{default}; 
             for (@names) {
                 unshift @spec, 'set' if $_ =~ m/^\+/ and ( !$spec[0] || $spec[0] ne 'set' );
@@ -58,7 +58,6 @@ sub construct_attribute {
    
     if ( ref $spec[1] eq 'Type::Tiny' ) { 
         $attr{isa} = $spec[1];
-        # pop either nan or the default
         $spec[1] = pop @spec;
     } 
     

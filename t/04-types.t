@@ -1,5 +1,10 @@
 use Test::More;
 
+use Test::Requires qw/
+    Moo
+    Type::Tiny
+/;
+
 use t::odea::BasicTypes;
 use lib '.';
 

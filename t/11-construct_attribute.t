@@ -1,5 +1,10 @@
 use Test::More;
 
+use Test::Requires qw/
+    Moo
+    Type::Tiny
+/;
+
 require MooX::LazierAttributes;
 
 use Types::Standard qw/Str ArrayRef HashRef/;
