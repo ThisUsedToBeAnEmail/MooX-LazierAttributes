@@ -2,6 +2,8 @@ use Test::More;
 
 require MooX::LazierAttributes;
 
+use Types::Standard qw/Str ArrayRef HashRef/;
+
 run_test(
     args => [ 'ro' ],
     expected => {
@@ -48,10 +50,22 @@ run_test_default(
     name => 'construct_attributes a ro attribute that is required',
 );
 
-run_test_default( 
-    args => ['ro', undef, { default => sub { 'Hello World' } } ],
+run_test_isa( 
+    args => ['ro', Str, { default => sub { 'Hello World' } } ],
     expected => 'Hello World',
-    name => 'construct_attributes a ro attribute that is required',
+    name => 'construct_attributes with a Type::Tiny Isa',
+);
+
+run_test_isa( 
+    args => ['ro', HashRef, ],
+    expected => 'Hello World',
+    name => 'construct_attributes with a Type::Tiny Isa',
+);
+
+run_test_isa( 
+    args => ['ro', [qw/one two three/], { isa => ArrayRef }],
+    expected => 'Hello World',
+    name => 'construct_attributes with a Type::Tiny Isa',
 );
 
 sub run_test {
@@ -63,6 +77,12 @@ sub run_test_default {
     my %test = @_;
     my %attr = &MooX::LazierAttributes::construct_attribute(@{ $test{args} });
     return is( $attr{default}->(), $test{expected}, "$test{name}");
+}
+
+sub run_test_isa {
+    my %test = @_;
+    my %attr = &MooX::LazierAttributes::construct_attribute(@{ $test{args} });
+    return is( ref $attr{isa}, 'Type::Tiny', "$test{name}");
 }
 
 done_testing();

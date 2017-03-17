@@ -89,7 +89,6 @@ sub _deep_clone {
 
 __END__
 
-
 =head1 NAME
 
 MooX::LazierAttributes - Lazier Attributes.
@@ -168,7 +167,6 @@ Version 0.13
     sub _build_three { 
         return My::Thing->new();
     }
-
 
 =head1 EXPORT
 
