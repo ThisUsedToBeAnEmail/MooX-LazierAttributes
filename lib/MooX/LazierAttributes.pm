@@ -71,7 +71,6 @@ sub construct_attribute {
 
 sub _clone {
     my ($to_clone) = @_;
-
     my $blessed = blessed $to_clone;
     my $clone   = _deep_clone($to_clone);
     return $blessed ? bless $clone, $blessed : $clone;

@@ -5,13 +5,13 @@ require MooX::LazierAttributes;
 run_test(
     args => 'one two',
     expected => 'one two',
-    name => '_deep_clone a scalar',
+    name => '_clone a scalar',
 );
 
 run_test(
     args => { one => 'two' },
     expected => { one => 'two' },
-    name => '_deep_clone a Hash',
+    name => '_clone a Hash',
 );
 
 run_test(
@@ -25,8 +25,29 @@ run_obj_test(
     isa => 'Thing',
     key => 'one',
     expected => 'two',
-    name => '_deep_clone a Array',
+    name => '_clone a Array',
 );
+
+{
+    package Foo::Bar;
+
+    use Moo;
+
+    has one => (
+        is => 'rw',
+        default => sub { 'Hello World' },
+    );
+}
+
+run_obj_test(
+    args => Foo::Bar->new(),
+    isa => 'Foo::Bar',
+    key => 'one',
+    expected => 'Hello World',
+    name => '_clone moo',
+    rw => 1,
+);
+
 
 sub run_test {
     my %test = @_;
@@ -38,6 +59,11 @@ sub run_obj_test {
     
     my $new_obj = &MooX::LazierAttributes::_clone($test{args});
     isa_ok($new_obj, $test{isa});
+
+    if ($test{rw}) {
+        $test{args}->one('reference destroyed');
+    }
+
     is($new_obj->{$test{key}}, $test{expected}, "simply check $test{key} is expected $test{expected}");
 }
 
