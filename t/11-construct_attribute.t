@@ -1,9 +1,13 @@
 use Test::More;
 
-use Test::Requires qw/
-    Moo
-    Type::Tiny
-/;
+BEGIN {
+    eval {
+        require Type::Tiny;
+        1;
+    } or do {
+        plan skip_all => "cannot require Type::Tiny";
+    };
+}
 
 require MooX::LazierAttributes;
 

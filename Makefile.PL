@@ -3,8 +3,6 @@ use strict;
 use warnings;
 use ExtUtils::MakeMaker;
 use Module::Metadata;
-use inc::Module::Install;
-test_requires 'Test::Requires';
 
 WriteMakefile(
     NAME             => 'MooX::LazierAttributes',
@@ -16,7 +14,6 @@ WriteMakefile(
     MIN_PERL_VERSION => 5.006,
     CONFIGURE_REQUIRES => {
         'ExtUtils::MakeMaker' => 0,
-        'inc::Module::Install' => 0,
         'Module::Metadata' => 0,
     },
     BUILD_REQUIRES => {

@@ -1,9 +1,15 @@
 use strict;
 use warnings;
 use Test::More;
-use Test::Requires qw/
-    Moose
-/;
+
+BEGIN {
+    eval {
+	    require Moose;
+        1;
+    } or do {
+        plan skip_all => "Moose is not available";
+    };
+}
 
 {
 

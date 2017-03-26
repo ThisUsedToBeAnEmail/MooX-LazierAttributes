@@ -4,10 +4,16 @@ use strict;
 use warnings;
 use Test::More;
 
-plan tests => 2;
+plan tests => 1;
+
+sub has { }
+sub extends { }
+sub with { }
+sub around { }
+sub after { }
+sub before { }
 
 BEGIN {
-    use_ok( 'Moo' ) || print "Bail out\n";
     use_ok( 'MooX::LazierAttributes' ) || print "Bail out!\n";
 }
 

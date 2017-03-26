@@ -11,6 +11,10 @@ t/02-the_haarg_test.t
 t/03-has_attributes.t
 t/04-types.t
 t/05-controlling_consts.t
+t/06-moose.t
+t/09-_deep_clone.t
+t/10-_clone.t
+t/11-construct_attribute.t
 t/manifest.t
 t/odea/BasicAttributes.pm
 t/odea/BasicTypes.pm

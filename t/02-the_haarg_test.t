@@ -1,9 +1,15 @@
 use strict;
 use warnings;
 use Test::More;
-use Test::Requires qw/
-    Moo
-/;
+
+BEGIN {
+    eval {
+	    require Moo;
+        1;
+    } or do {
+        plan skip_all => "Cannot require Moo";
+    };
+}
 
 {
 

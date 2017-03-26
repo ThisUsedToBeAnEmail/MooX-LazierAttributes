@@ -5,7 +5,7 @@ use warnings;
 use Scalar::Util qw/reftype blessed/;
 use MooX::ReturnModifiers qw/return_modifiers/;
 
-our $VERSION = '0.13';
+our $VERSION = '0.15';
 
 use constant ro       => 'ro';
 use constant is_ro    => ( is => ro );
@@ -94,7 +94,7 @@ MooX::LazierAttributes - Lazier Attributes.
 
 =head1 VERSION
 
-Version 0.13
+Version 0.15
 
 =cut
 
@@ -127,7 +127,7 @@ Version 0.13
 
     ... Extending .....
 
-    package Extends::Hello::World;
+    `package Extends::Hello::World;
 
     use Moo;
     use MooX::LazierAttributes;
@@ -151,6 +151,27 @@ Version 0.13
     package Hello::World;
     
     use Moo;
+    use MooX::LazierAttributes qw/is_ro rw lzy bld/;
+    use Types::Standard qw/Str HashRef ArrayRef Object/;
+
+    attributes (
+        one   => [Str], # defaults to be ro
+        two   => [HashRef],
+        three => [Object, { lzy, bld }],
+        [qw/four five six/] => [rw, Str, { default => 'ruling the world' }],
+    );
+
+    has seven => ( is_ro, lzy, isa => ArrayRef, default => sub { [qw/a b c/] });
+
+    sub _build_three { 
+        return My::Thing->new();
+    }
+
+    ... Moo -> Moose ...
+
+    package Hello::World;
+    
+    use Moose;
     use MooX::LazierAttributes qw/is_ro rw lzy bld/;
     use Types::Standard qw/Str HashRef ArrayRef Object/;
 

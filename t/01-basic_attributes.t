@@ -1,9 +1,14 @@
 use Test::More;
 
-use Test::Requires qw/
-    Moo
-    Type::Tiny
-/;
+BEGIN {
+    eval {
+	    require Moo;
+    	require Type::Tiny;
+        1;
+    } or do {
+        plan skip_all => "cannot require Moo or Type::Tiny";
+    };
+}
 
 use t::odea::BasicAttributes;
 use t::odea::ExtendsBasicAttributes;
