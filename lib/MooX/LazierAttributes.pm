@@ -45,7 +45,7 @@ sub import {
 
 			for (@names) {
 				unshift @spec, 'set' if $_ =~ m/^\+/ and ( !$spec[0] || $spec[0] ne 'set' );
-				unshift @spec, ro unless $spec[0] && ref \$spec[0] eq 'SCALAR' and $spec[0] =~ m/^(ro|rw|set)$/;
+				unshift @spec, ro unless ! ref $spec[0] and $spec[0] =~ m/^(ro|rw|set)$/;
 				$has->( $_, _construct_attribute(@spec) );
 			}
 		}
