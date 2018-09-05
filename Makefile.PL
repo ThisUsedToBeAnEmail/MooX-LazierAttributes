@@ -14,7 +14,7 @@ WriteMakefile(
     MIN_PERL_VERSION => 5.006,
     CONFIGURE_REQUIRES => {
         'ExtUtils::MakeMaker' => 0,
-        'Module::Metadata' => 0,
+        'Module::Metadata' => '1.000033',
     },
     BUILD_REQUIRES => {
         'Test::More' => 0,
