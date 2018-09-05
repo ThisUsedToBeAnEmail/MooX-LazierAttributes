@@ -3,7 +3,7 @@
 MooX::LazierAttributes - Lazier Attributes, well It lets me type 'has', 'is', 'default' less.
 ========================
 [![Build Status](https://travis-ci.org/ThisUsedToBeAnEmail/MooX-LazierAttributes.svg?branch=master)](https://travis-ci.org/ThisUsedToBeAnEmail/MooX-LazierAttributes)
-[![Coverage Status](https://coveralls.io/repos/ThisUsedToBeAnEmail/MooX-LazierAttributes/badge.png?branch=master)](https://coveralls.io/r/ThisUsedToBeAnEmail/MooX-LazierAttributes?branch=master)
+[![Coverage Status](https://coveralls.io/repos/ThisUsedToBeAnEmail/MooX-LazierAttributes/badge.svg?branch=master)](https://coveralls.io/r/ThisUsedToBeAnEmail/MooX-LazierAttributes?branch=master)
 [![CPAN version](https://badge.fury.io/pl/MooX-LazierAttributes.svg)](https://metacpan.org/pod/MooX-LazierAttributes)
 
 
