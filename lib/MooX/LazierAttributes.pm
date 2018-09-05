@@ -72,21 +72,19 @@ sub import {
 }
 
 sub _construct_attribute {
-    my @spec = @_;
-    my %attr = ();
-    $attr{is} = $spec[0] unless $spec[0] eq 'set';
+	my @spec = @_;
+	my %attr = ();
+	$attr{is} = $spec[0] unless $spec[0] eq 'set';
 
-    if ( ref $spec[1] eq 'Type::Tiny' ) {
-        $attr{isa} = $spec[1];
-        $spec[1] = pop @spec;
-    }
+	do { $attr{isa} = $spec[1]; $spec[1] = pop @spec }
+		if ref $spec[1] eq 'Type::Tiny';
 
-    $attr{default} = ref $spec[1] eq 'CODE' ? $spec[1] : sub { clone( $spec[1] ) }
-        if defined $spec[1];
+	$attr{default} = ref $spec[1] eq 'CODE' ? $spec[1] : sub { clone( $spec[1] ) }
+		if defined $spec[1];
 
-    $attr{$_} = $spec[2]->{$_} foreach keys %{ $spec[2] };
+	$attr{$_} = $spec[2]->{$_} foreach keys %{ $spec[2] };
 
-    return %attr;
+	return %attr;
 }
 
 1;
