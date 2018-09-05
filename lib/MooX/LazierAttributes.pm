@@ -41,7 +41,7 @@ sub import {
 
 			my $eye = 1;
 			splice @spec, $#spec < 1 ? 0 : $eye, 0, delete $spec[-1]->{default}
-				if (grep { ref $spec[$_] eq 'Type::Tiny' and $eye = scalar @spec } (0 .. $#spec) or ref $spec[-1] eq 'HASH' && exists $spec[-1]->{default} );
+				if (grep { ref $spec[$_] eq 'Type::Tiny' and $eye = $#spec } (0 .. $#spec) or ref $spec[-1] eq 'HASH' && exists $spec[-1]->{default} );
 
 			for (@names) {
 				unshift @spec, 'set' if $_ =~ m/^\+/ and ( !$spec[0] || $spec[0] ne 'set' );
@@ -62,7 +62,7 @@ sub import {
 
 		*{"${target}::attributes"} = $attributes;
 
-		namespace::clean->import(  
+		namespace::clean->import(
 			-cleanee => $target,
 			@ex, 'attributes'
 		);
@@ -75,15 +75,10 @@ sub _construct_attribute {
 	my @spec = @_;
 	my %attr = ();
 	$attr{is} = $spec[0] unless $spec[0] eq 'set';
-
-	do { $attr{isa} = $spec[1]; $spec[1] = pop @spec }
-		if ref $spec[1] eq 'Type::Tiny';
-
+	do { $attr{isa} = splice @spec, 1, 1; } if ref $spec[1] eq 'Type::Tiny';
 	$attr{default} = ref $spec[1] eq 'CODE' ? $spec[1] : sub { clone( $spec[1] ) }
 		if defined $spec[1];
-
 	$attr{$_} = $spec[2]->{$_} foreach keys %{ $spec[2] };
-
 	return %attr;
 }
 
