@@ -97,6 +97,12 @@ __END__
 
 MooX::LazierAttributes - Lazier Attributes.
 
+=for html
+
+<a href="https://travis-ci.org/ThisUsedToBeAnEmail/MooX-LazierAttributes"><img src="https://travis-ci.org/ThisUsedToBeAnEmail/MooX-LazierAttributes.png?branch=master" alt="Build Status"></a>
+<a href="https://coveralls.io/r/ThisUsedToBeAnEmail/MooX-LazierAttributes?branch=master"><img src="https://coveralls.io/repos/ThisUsedToBeAnEmail/MooX-LazierAttributes/badge.png?branch=master" alt="Coverage Status"></a>
+<a href="https://metacpan.org/pod/MooX-LazierAttributes"><img src="https://badge.fury.io/pl/MooX-LazierAttributes.svg" alt="CPAN version"></a>
+
 =head1 VERSION
 
 Version 1.07
