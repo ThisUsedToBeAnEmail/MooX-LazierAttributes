@@ -2,10 +2,12 @@ package MooX::LazierAttributes;
 
 use strict;
 use warnings;
-use Scalar::Util qw/reftype blessed/;
-use MooX::ReturnModifiers qw/return_modifiers/;
+use Moo;
+use Clone qw/clone/;
+use MooX::ReturnModifiers qw/return_has/;
+use namespace::clean ();
 
-our $VERSION = '1.03';
+our $VERSION = '1.07007';
 
 use constant ro => 'ro';
 use constant is_ro => ( is => ro );
@@ -21,68 +23,70 @@ use constant req => ( required => 1 );
 use constant coe => ( coerce => 1 );
 use constant lzy_hash => ( lazy => 1, default => sub { {} });
 use constant lzy_array => ( lazy => 1, default => sub { [] });
+use constant lzy_str => (lazy => 1, default => sub { "" });
+use constant dhash => (default => sub { {} });
+use constant darray => (default => sub { [] });
+use constant dstr => (default => sub { "" });
 
 sub import {
-    my ($package, @export) = @_;
-    my $target    = caller;
-    my %modifiers = return_modifiers($target);
+	my ($package, @export) = @_;
+	my $target = caller;
+	my $has = return_has($target);
 
-    my $attributes = sub {
-        my @attr = @_;
-        while (@attr) {
-            my @names = ref $attr[0] eq 'ARRAY' ? @{ shift @attr } : shift @attr;
-            my @spec = @{ shift @attr };
-            
-            push @spec, delete $spec[2]->{default}; 
-            for (@names) {
-                unshift @spec, 'set' if $_ =~ m/^\+/ and ( !$spec[0] || $spec[0] ne 'set' );
-                unshift @spec, ro unless ref \$spec[0] eq 'SCALAR' and $spec[0] =~ m/^ro|rw|set$/;
-                $modifiers{has}->( $_, construct_attribute(@spec) );
-            }
-        }
-    };
+	my $attributes = sub {
+		my @attr = @_;
+		while (@attr) {
+			my @names = ref $attr[0] eq 'ARRAY' ? @{ shift @attr } : shift @attr;
+			my @spec = @{ shift(@attr) };
 
-    { 
-        no strict 'refs'; 
-        ${"${target}::"}{$_} = ${"${package}::"}{$_}
-          foreach (scalar @export ? @export : qw/ro is_ro rw is_rw nan lzy bld lzy_bld trg clr req coe lzy_hash lzy_array/);
-        *{"${target}::attributes"} = $attributes; 
-    }
+			my $eye = 1;
+			splice @spec, $#spec < 1 ? 0 : $eye, 0, delete $spec[-1]->{default}
+				if (grep { ref $spec[$_] eq 'Type::Tiny' and $eye = scalar @spec } (0 .. $#spec) or ref $spec[-1] eq 'HASH' && exists $spec[-1]->{default} );
 
-    return 1;
+			for (@names) {
+				unshift @spec, 'set' if $_ =~ m/^\+/ and ( !$spec[0] || $spec[0] ne 'set' );
+				unshift @spec, ro unless $spec[0] && ref \$spec[0] eq 'SCALAR' and $spec[0] =~ m/^(ro|rw|set)$/;
+				$has->( $_, _construct_attribute(@spec) );
+			}
+		}
+	};
+
+	my @ex = scalar @export
+		? grep { !ref $_ } @export
+		: qw/ro is_ro rw is_rw nan lzy bld lzy_bld trg clr req coe lzy_hash lzy_array/; # back compat as import used to accept a {}
+
+	{
+		no strict 'refs';
+		${"${target}::"}{$_} = ${"${package}::"}{$_}
+			foreach @ex;
+
+		*{"${target}::attributes"} = $attributes;
+
+		namespace::clean->import(  
+			-cleanee => $target,
+			@ex, 'attributes'
+		);
+	}
+
+	return 1;
 }
 
-sub construct_attribute {
+sub _construct_attribute {
     my @spec = @_;
     my %attr = ();
     $attr{is} = $spec[0] unless $spec[0] eq 'set';
-   
-    if ( ref $spec[1] eq 'Type::Tiny' ) { 
+
+    if ( ref $spec[1] eq 'Type::Tiny' ) {
         $attr{isa} = $spec[1];
         $spec[1] = pop @spec;
-    } 
-    
-    $attr{default} = ref $spec[1] eq 'CODE' ? $spec[1] : sub { _clone( $spec[1] ) }
+    }
+
+    $attr{default} = ref $spec[1] eq 'CODE' ? $spec[1] : sub { clone( $spec[1] ) }
         if defined $spec[1];
 
     $attr{$_} = $spec[2]->{$_} foreach keys %{ $spec[2] };
+
     return %attr;
-}
-
-sub _clone {
-    my ($to_clone) = @_;
-    my $blessed = blessed $to_clone;
-    my $clone   = _deep_clone($to_clone);
-    return $blessed ? bless $clone, $blessed : $clone;
-}
-
-sub _deep_clone {
-    my ($to_clone) = @_;
-    my $rt = reftype($to_clone) || reftype(\$to_clone);
-    $rt eq 'SCALAR' and return $to_clone;
-    $rt eq 'HASH'   and return { map +( $_ => _clone( $to_clone->{$_} ) ), keys %$to_clone };
-    $rt eq 'ARRAY'  and return [ map _clone($_), @$to_clone ];
-    return $to_clone;
 }
 
 1;
@@ -95,14 +99,14 @@ MooX::LazierAttributes - Lazier Attributes.
 
 =head1 VERSION
 
-Version 1.03
+Version 1.07
 
 =cut
 
 =head1 SYNOPSIS
 
     package Hello::World;
-    
+
     use Moo;
     use MooX::LazierAttributes;
 
@@ -117,9 +121,9 @@ Version 1.03
 
     .....
 
-    my $hello = Hello::World->new({ 
+    my $hello = Hello::World->new({
         one => 1,
-        two => { three => 'four' },   
+        two => { three => 'four' },
     });
 
     $hello->one;    # 1
@@ -134,7 +138,7 @@ Version 1.03
     use MooX::LazierAttributes;
 
     extends 'Hello::World';
-    
+
     attributes (
         '+one' => ['hey'],
         '+two' => [[qw/why are you inside/]],
@@ -150,7 +154,7 @@ Version 1.03
     ... What if I like Types ...
 
     package Hello::World;
-    
+
     use Moo;
     use MooX::LazierAttributes qw/is_ro rw lzy bld/;
     use Types::Standard qw/Str HashRef ArrayRef Object/;
@@ -164,14 +168,14 @@ Version 1.03
 
     has seven => ( is_ro, lzy, isa => ArrayRef, default => sub { [qw/a b c/] });
 
-    sub _build_three { 
+    sub _build_three {
         return My::Thing->new();
     }
 
     ... Moo -> Moose ...
 
     package Hello::World;
-    
+
     use Moose;
     use MooX::LazierAttributes qw/is_ro rw lzy bld/;
     use Types::Standard qw/Str HashRef ArrayRef Object/;
@@ -185,7 +189,7 @@ Version 1.03
 
     has seven => ( is_ro, lzy, isa => ArrayRef, default => sub { [qw/a b c/] });
 
-    sub _build_three { 
+    sub _build_three {
         return My::Thing->new();
     }
 
@@ -193,24 +197,24 @@ Version 1.03
 
 =head2 attributes
 
-I'm a list, my content gets transformed into Moo Attributes. My keys can either be a scalar or an array reference of scalars, 
+I'm a list, my content gets transformed into Moo Attributes. My keys can either be a scalar or an array reference of scalars,
 they are used as the (*has*) name when constructing the Attributes.
-    
+
     one => [],
     [qw/two three/] => []
     ...
     has one => ( is => 'ro' );
     has [qw/two three/] => ( is => 'ro' );
 
-My value has to be an array reference, which can contain 3 indexes. If I was to write a read-write attribute that 
+My value has to be an array reference, which can contain 3 indexes. If I was to write a read-write attribute that
 had a type constraint was lazy and also had a builder. It would look something like this.
 
     attributes (
         example => [ rw, ArrayRef, { lzy, bld } ],
     );
-    
+
     ....
-    
+
     has example => (
         is => 'rw',
         isa => ArrayRef,
@@ -224,17 +228,17 @@ I'll show you Another example this time we have a read-only attribute, that has 
     attributes (
         example => [ Str, { req } ]
     )
-    
+
     ....
-    
+
     has example => (
         is => 'ro',
-        isa => Str,  
+        isa => Str,
         required => 1,
     );
 
-As you can see we have dropped the first index (*is*). The last index the [1] above and [2] in my first 
-example must always be a hash reference that conforms to Moo attribute Standards. This module exports 
+As you can see we have dropped the first index (*is*). The last index the [1] above and [2] in my first
+example must always be a hash reference that conforms to Moo attribute Standards. This module exports
 constants that try to make filling this reference less repetitive. Sometimes you may not always need extra,
 Moo Magic - a read-only attribute with just a type constraint.
 
@@ -243,14 +247,14 @@ Moo Magic - a read-only attribute with just a type constraint.
     );
 
     ....
-    
+
     has example => (
         is => 'ro',
         isa => ArrayRef
     );
 
 And just a read-only attribute...
-    
+
     attributes (
         example => [],
     );
@@ -291,7 +295,7 @@ undef
 
 ( builder => 1 )
 
-=head3 lzy_bld 
+=head3 lzy_bld
 
 ( lazy_build => 1 ),
 
@@ -315,13 +319,29 @@ undef
 
 ( lazy => 1, default => sub { [] } )
 
+=head3 lzy_str
+
+( lazy => 1, default => sub { '' } )
+
+=head3 dhash
+
+( default => sub { {} } )
+
+=head3 darray
+
+( default => sub { [] } )
+
+=head3 dstr
+
+( default => sub { '' } )
+
 =head1 Acknowledgements
 
 One would like to Acknowledge Haarg for taking the time to read my code and pointing me in the right direction.
 
 =head1 More than one way
 
-You may also be interested in - L<MooseX::Has::Sugar>. 
+You may also be interested in - L<MooseX::Has::Sugar>.
 
 =head1 AUTHOR
 
