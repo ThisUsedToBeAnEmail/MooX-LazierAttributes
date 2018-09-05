@@ -22,8 +22,8 @@ WriteMakefile(
     },
     PREREQ_PM => {
         'MooX::ReturnModifiers' => '0.03',
-        'namespace::clean' => 0,
-		'Clone' => 0,
+        'namespace::clean' => '0.27',
+		'Clone' => '0.39',
         'constant' => 0,
     },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
