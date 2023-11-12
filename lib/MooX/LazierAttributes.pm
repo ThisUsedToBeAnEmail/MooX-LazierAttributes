@@ -7,7 +7,7 @@ use Clone qw/clone/;
 use MooX::ReturnModifiers qw/return_has return_sub/;
 use namespace::clean ();
 
-our $VERSION = '1.07008';
+our $VERSION = '1.07009';
 
 use constant ro => 'ro';
 use constant is_ro => ( is => ro );
@@ -97,7 +97,7 @@ MooX::LazierAttributes - Lazier Attributes.
 
 =head1 VERSION
 
-Version 1.07
+Version 1.07009
 
 =cut
 
